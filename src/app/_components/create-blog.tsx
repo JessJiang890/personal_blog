@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { api } from "@/trpc/react";
+import { api } from '@/trpc/react';
 
-export function CreatePost() {
+export function CreateBlog() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [content, setContent] = useState('');
 
-  const createPost = api.post.create.useMutation({
+  const createPost = api.blog.create.useMutation({
     onSuccess: () => {
       router.refresh();
-      setName("");
+      setContent('');
     },
   });
 
@@ -20,15 +20,15 @@ export function CreatePost() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        createPost.mutate({ name });
+        createPost.mutate({ content });
       }}
       className="flex flex-col gap-2"
     >
       <input
         type="text"
         placeholder="Title"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
         className="w-full rounded-full px-4 py-2 text-black"
       />
       <button
@@ -36,7 +36,7 @@ export function CreatePost() {
         className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
         disabled={createPost.isLoading}
       >
-        {createPost.isLoading ? "Submitting..." : "Submit"}
+        {createPost.isLoading ? 'Submitting...' : 'Submit'}
       </button>
     </form>
   );
