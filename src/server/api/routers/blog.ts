@@ -31,24 +31,51 @@ export const blogRouter = createTRPCRouter({
     });
   }),
 
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.blog.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }),
+
+  getAllByUser: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.blog.findMany({
       orderBy: { createdAt: 'desc' },
       where: { createdBy: { id: ctx.session.user.id } },
     });
   }),
 
-  findById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    const post = await ctx.db.blog.findUnique({
+  findById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const blog = await ctx.db.blog.findUnique({
       where: { id: input.id },
     });
 
-    if (!post) {
+    if (!blog) {
       throw new Error('Post not found');
     }
 
-    return post;
+    return blog;
   }),
+
+  editById: protectedProcedure
+    .input(z.object({ id: z.string(), title: z.string(), content: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const existingBlog = await ctx.db.blog.findFirst({
+        where: {
+          id: input.id,
+          createdBy: { id: ctx.session.user.id },
+        },
+      });
+      if (!existingBlog) {
+        throw new Error('Post not found or you do not have permission to edit it');
+      }
+      return ctx.db.blog.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          content: input.content,
+        },
+      });
+    }),
 
   getSecretMessage: protectedProcedure.query(() => {
     return 'you can now see this secret message!';
