@@ -52,6 +52,14 @@ export default async function Home() {
             >
               {session ? 'Sign out' : 'Sign in'}
             </Link>
+            {session ? (
+              <Link
+                href={'create-post'}
+                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+              >
+                Create Post
+              </Link>
+            ) : null}
           </div>
         </div>
 
@@ -66,6 +74,7 @@ async function CrudShowcase() {
   if (!session?.user) return null;
 
   const latestBlog = await api.blog.getLatest.query();
+  const allBlogs = await api.blog.getAll.query();
 
   return (
     <div className="w-full max-w-xs">
@@ -74,6 +83,23 @@ async function CrudShowcase() {
       ) : (
         <p>You have no posts yet.</p>
       )}
+      <div className="mb-px">
+        <h2 className="text-lg font-bold">All Blogs</h2>
+        {allBlogs.length > 0 ? (
+          <ul>
+            {allBlogs.map((blog) => (
+              <li
+                key={blog.id + blog.content}
+                className="border-b border-gray-200 py-2"
+              >
+                <Link href={`blogs/${blog.id}`}>{blog.content}</Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No posts to show.</p>
+        )}
+      </div>
 
       <CreateBlog />
     </div>

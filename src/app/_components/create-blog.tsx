@@ -7,11 +7,13 @@ import { api } from '@/trpc/react';
 
 export function CreateBlog() {
   const router = useRouter();
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
   const createPost = api.blog.create.useMutation({
     onSuccess: () => {
       router.refresh();
+      setTitle('');
       setContent('');
     },
   });
@@ -20,13 +22,20 @@ export function CreateBlog() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        createPost.mutate({ content });
+        createPost.mutate({ title, content });
       }}
       className="flex flex-col gap-2"
     >
       <input
         type="text"
         placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full rounded-full px-4 py-2 text-black"
+      />
+      <input
+        type="text"
+        placeholder="Content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         className="w-full rounded-full px-4 py-2 text-black"

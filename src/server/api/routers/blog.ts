@@ -10,13 +10,14 @@ export const blogRouter = createTRPCRouter({
   }),
 
   create: protectedProcedure
-    .input(z.object({ content: z.string().min(1) }))
+    .input(z.object({ title: z.string().min(1), content: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // // simulate a slow db call
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return ctx.db.blog.create({
         data: {
+          title: input.title,
           content: input.content,
           createdBy: { connect: { id: ctx.session.user.id } },
         },
@@ -28,6 +29,25 @@ export const blogRouter = createTRPCRouter({
       orderBy: { createdAt: 'desc' },
       where: { createdBy: { id: ctx.session.user.id } },
     });
+  }),
+
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.blog.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: { createdBy: { id: ctx.session.user.id } },
+    });
+  }),
+
+  findById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const post = await ctx.db.blog.findUnique({
+      where: { id: input.id },
+    });
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    return post;
   }),
 
   getSecretMessage: protectedProcedure.query(() => {

@@ -18,6 +18,7 @@ datasource db {
 
 model Blog {
     id        String      @id @default(uuid())
+    title     String
     userId    String
     content   String
     createdAt DateTime @default(now())
