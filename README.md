@@ -8,6 +8,7 @@ This is a personal blog application.
 - use prisma to connect the database from planetscale
 - User can view all post without login
 - User can view their own post when login
+- Use vercel for deploy
 
 ## Improvement
 
